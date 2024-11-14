@@ -20,12 +20,14 @@ udocker_prune
 udocker_create "$CONTAINER_NAME" "$IMAGE_NAME"
 
 if [ -n "$1" ]; then
- udocker_run --entrypoint "bash -c" -p "$PORT:8095" "$CONTAINER_NAME" "$@"
+ udocker_run --entrypoint "ash -c" -p "$PORT:8095" -e LD_PRELOAD="" "$CONTAINER_NAME" "$@"
 else
  udocker_run -p "$PORT:8095" \
+   --entrypoint "ash -c" \
    -e TZ="$TZ" \
    -e LD_PRELOAD="" \
    -v "$STORAGE_PATH:/data" \
-  "$CONTAINER_NAME"
+  "$CONTAINER_NAME" \
+  "source /app/venv/bin/activate && rm -rf /app/venv/lib/python*/site-packages/hass_client* && pip install hass-client --force && mass"
 fi
 exit $?
